@@ -5,265 +5,325 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Happy Birthday Haritha! ❤️</title>
+    <!-- Fonts -->
     <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,600;1,600&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,600;1,600&family=Great+Vibes&display=swap"
         rel="stylesheet">
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <!-- Loading and Gift Box Screen -->
-    <div id="loading-screen" class="loading-screen">
-        <div class="loader">
-            <div class="spinner"></div>
-            <p>Preparing a surprise...</p>
+    <!-- tsParticles Background -->
+    <div id="tsparticles"></div>
+
+    <!-- Cinematic Intro / Loading Screen -->
+    <div id="cinematic-intro" class="screen">
+        <div class="intro-text-container">
+            <h1 class="intro-text" id="intro-line-1">Every Beautiful Story...</h1>
+            <h1 class="intro-text" id="intro-line-2">Has A Beautiful Hero...</h1>
+            <h1 class="intro-text" id="intro-line-3">Today is Your Story.</h1>
+            <h1 class="intro-text highlight-gold" id="intro-line-4">Happy Birthday, Haritha Akka👑❤️</h1>
         </div>
-        <div class="gift-box-container hidden" id="gift-box-container">
-            <div class="gift-box bounce-animation">🎁</div>
-            <p>Tap to Open!</p>
+        <button id="start-journey-btn" class="hidden glass-btn aurora-bg">Begin the Journey ✨</button>
+    </div>
+
+    <!-- Locked Gift Box Screen -->
+    <div id="locked-gift-screen" class="screen hidden">
+        <h2 class="glow-text">Your Birthday Gift Is Locked 🔒</h2>
+        <div class="gift-box-container" id="gift-box-container">
+            <div class="gift-box" id="main-gift-box">🎁</div>
+            <button id="unlock-gift-btn" class="glass-btn mt-4">Unlock My Surprise 🔓</button>
         </div>
     </div>
 
-    <!-- Main Content Wrapper -->
-    <div id="main-content">
-        <!-- Background Music (Placeholder until user replaces) -->
-    <audio id="bg-music" loop>
-        <source src="audio/bgm.mp3" type="audio/mpeg">
-    </audio>
-    <button id="music-btn" class="music-btn">🎵 Play Music</button>
-
-    <!-- Confetti Container (Library injected via JS) -->
-    <div id="animation-container"></div>
-
-    <!-- Hero Section -->
-    <header class="hero" id="hero">
-        <!-- Left Image -->
-        <div class="hero-side-image left">
-            <img src="images/sister-left.jpeg" alt="Haritha Left" class="floating glow-effect">
-        </div>
-
-        <div class="glass-panel">
-            <h1 class="hero-title" style="font-size: clamp(2rem, 4vw, 3.5rem);">Wishing you a veryy Happiest Birthday
-                wishes,<br><span class="highlight">Haritha Akka!</span></h1>
-            <p class="hero-subtitle">To the most amazing sister in the world.</p>
-            <div class="scroll-indicator">
-                <p>Scroll for a surprise</p>
-                <div class="arrow">↓</div>
+    <!-- Floating Music Player & Voice Greeting -->
+    <div id="floating-controls" class="hidden">
+        <div class="glass-card music-player">
+            <div class="track-info">
+                <span class="icon">🎵</span>
+                <span class="track-name">Memories & Melodies</span>
             </div>
+            <div class="controls">
+                <button id="play-pause-btn" title="Play/Pause Music">▶</button>
+                <button id="voice-greeting-btn" title="Play Voice Message">🎤</button>
+            </div>
+            <audio id="bg-music" loop>
+                <source src="audio/bgm.mp3" type="audio/mpeg">
+            </audio>
+            <!-- Mocked Voice Greeting Audio -->
+            <audio id="voice-greeting">
+                <source src="audio/bgm.mp3" type="audio/mpeg"> <!-- Reusing bgm as placeholder -->
+            </audio>
         </div>
+    </div>
 
-        <!-- Right Image -->
-        <div class="hero-side-image right">
-            <img src="images/sister-right.jpeg" alt="Haritha Right" class="floating-delayed glow-effect">
-        </div>
-    </header>
+    <!-- Main Content Flow -->
+    <main id="main-content" class="hidden">
 
-    <!-- Birthday Message Section -->
-    <section class="section message-section">
-        <div class="glass-card fade-in message-card-layout">
-            <div class="message-content">
-                <h2>A Special Message For You</h2>
-                <div id="typewriter-container" class="typewriter-text">
-                    <p class="hidden-text">Dear Haritha,</p>
-                    <p class="hidden-text">On this special day, I want you to know how much you mean to me. You are not just a sister, but a friend, a guide, and a wonderful person. May your birthday be as beautiful and extraordinary as you are!</p>
-                    <p class="hidden-text">Wishing you endless joy, love, and laughter today and always.</p>
+        <!-- Galaxy Welcome (Hero) -->
+        <section id="galaxy-welcome" class="section">
+            <div class="glass-panel aurora-bg parallax-content">
+                <h1 class="title">Welcome to Your Universe 🌌</h1>
+                <p class="subtitle">Among billions of stars, you are the brightest one in our family.</p>
+                <div class="scroll-indicator">
+                    <p>Scroll to explore your life</p>
+                    <div class="arrow">↓</div>
                 </div>
             </div>
-            <div class="message-image">
-                <img src="images/special-message.jpeg" alt="Special Memory" class="glow-effect">
-            </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Surprise Popup Section -->
-    <section class="section special-popup-section">
-        <div class="popup-container">
-            <h2 class="popup-title">Double Surprise! 🎊</h2>
-            <div class="popup-images-wrapper">
-                <div class="popup-image left">
-                    <img src="images/surprise1.jpeg" alt="Surprise Left" class="sunlight-glow">
+        <!-- Floating Quote 1 -->
+        <div class="floating-quote-section">
+            <h2 class="floating-quote">"Because I have a <span class="highlight">sister</span>, I will always have a
+                friend."</h2>
+        </div>
+
+        <!-- Interactive Life Timeline -->
+        <section id="life-timeline" class="section">
+            <h2 class="section-title glow-text">A Journey Through Time ⏳</h2>
+            <div class="timeline-container">
+                <div class="timeline-line"></div>
+
+                <div class="timeline-node left">
+                    <div class="timeline-content glass-card">
+                        <h3>A Star is Born 👶</h3>
+                        <img src="images/timeline-baby.jpeg" class="highlight-img" alt="Baby Haritha">
+                    </div>
                 </div>
-                <div class="popup-image right">
-                    <img src="images/surprise2.jpeg" alt="Surprise Right" class="sunlight-glow">
+
+                <div class="timeline-node right">
+                    <div class="timeline-content glass-card">
+                        <h3>School Days 🎓</h3>
+                        <img src="images/new2.jpeg" class="highlight-img" alt="School Days">
+                    </div>
                 </div>
-            </div>
-        </div>
-    </section>
 
-    <!-- Memories Gallery -->
-    <section class="section gallery-section">
-        <h2 class="section-title fade-in">Sweetest Moments</h2>
-        <div class="gallery-grid">
-            <div class="gallery-item slide-up">
-                <img src="images/gallery1.jpeg" alt="Memory 1" class="sunlight-glow">
-                <div class="gallery-caption">A sister is both your mirror and your opposite. 🥰👯‍♀️</div>
-            </div>
-            <div class="gallery-item slide-up" style="animation-delay: 0.1s;">
-                <img src="images/gallery2.jpeg" alt="Memory 2" class="sunlight-glow">
-                <div class="gallery-caption">Brothers and sisters are as close as hands and feet. 🤝✨</div>
-            </div>
-            <div class="gallery-item slide-up" style="animation-delay: 0.2s;">
-                <img src="images/gallery3.jpeg" alt="Memory 3" class="sunlight-glow">
-                <div class="gallery-caption">Side by side or miles apart, siblings connected by the heart. ❤️🌍</div>
-            </div>
-            <div class="gallery-item slide-up" style="animation-delay: 0.3s;">
-                <img src="images/gallery4.jpeg" alt="Memory 4" class="sunlight-glow">
-                <div class="gallery-caption">You are my favorite person to annoy! 🤪💖</div>
-            </div>
-            <div class="gallery-item slide-up" style="animation-delay: 0.4s;">
-                <img src="images/gallery5.jpeg" alt="Memory 5" class="sunlight-glow">
-                <div class="gallery-caption">Because I have a sister, I'll always have a friend. 👦👧🌟</div>
-            </div>
-            <div class="gallery-item slide-up" style="animation-delay: 0.5s;">
-                <img src="images/gallery6.jpeg" alt="Memory 6" class="sunlight-glow">
-                <div class="gallery-caption">We fight like cats and dogs, but love endlessly. 🐱🐶❤️</div>
-            </div>
-            <div class="gallery-item slide-up" style="animation-delay: 0.1s;">
-                <img src="images/gallery7.jpeg" alt="Memory 7" class="sunlight-glow">
-                <div class="gallery-caption">A sister is a little bit of childhood that can never be lost. 🧸✨</div>
-            </div>
-            <div class="gallery-item slide-up" style="animation-delay: 0.2s;">
-                <img src="images/gallery8.jpeg" alt="Memory 8" class="sunlight-glow">
-                <div class="gallery-caption">Our roots say we're siblings, our hearts say we're friends. 🌳💖</div>
-            </div>
-            <div class="gallery-item slide-up" style="animation-delay: 0.3s;">
-                <img src="images/gallery9.jpeg" alt="Memory 9" class="sunlight-glow">
-                <div class="gallery-caption">Best sister ever! (Don't tell anyone else). 🤫👑</div>
-            </div>
-            <div class="gallery-item slide-up" style="animation-delay: 0.4s;">
-                <img src="images/gallery10.jpeg" alt="Memory 10" class="sunlight-glow">
-                <div class="gallery-caption">Together we make an unstoppable team! 🚀💪</div>
-            </div>
-        </div>
-    </section>
+                <div class="timeline-node left">
+                    <div class="timeline-content glass-card">
+                        <h3>Crazy Memories 🎉</h3>
+                        <img src="images/new3.jpeg" class="highlight-img" alt="Funny Memory">
+                    </div>
+                </div>
 
-    <!-- Memory Timeline Section -->
-    <section class="section timeline-section">
-        <h2 class="section-title fade-in">Journey of Beautiful Memories</h2>
-        <div class="timeline fade-in">
-            <div class="timeline-item left slide-up">
-                <div class="timeline-content glass-card" style="padding: 0; overflow: hidden;">
-                    <img src="images/timeline-baby.jpeg" alt="Memory" class="timeline-img sunlight-glow">
+                <div class="timeline-node right">
+                    <div class="timeline-content glass-card">
+                        <img src="images/sister-right.jpeg" alt="Achievements">
+                    </div>
+                </div>
+
+                <div class="timeline-node left">
+                    <div class="timeline-content glass-card aurora-bg">
+                        <span class="year">2026</span>
+                        <h3>Best Sister Ever ❤️</h3>
+                        <p>And the journey continues...</p>
+                    </div>
                 </div>
             </div>
-            <div class="timeline-item right slide-up">
-                <div class="timeline-content glass-card" style="padding: 0; overflow: hidden;">
-                    <img src="images/timeline-2.jpeg" alt="Memory" class="timeline-img sunlight-glow" style="object-position: top center;">
+        </section>
+
+        <!-- Floating Quote 2 -->
+        <div class="floating-quote-section">
+            <h2 class="floating-quote">"Side by side or miles apart, we are always connected by the <span
+                    class="highlight">heart</span>."</h2>
+        </div>
+
+        <!-- Floating Memory Bubbles -->
+        <section id="memory-bubbles" class="section">
+            <h2 class="section-title glow-text">Floating Memories 🫧</h2>
+            <p class="subtitle text-center mb-4">Click a bubble to pop it and reveal a memory!</p>
+            <div class="bubbles-container" id="bubbles-container">
+                <!-- Bubbles injected via JS -->
+            </div>
+        </section>
+
+        <!-- Floating Quote 3 -->
+        <div class="floating-quote-section">
+            <h2 class="floating-quote">"A sister's love is a <span class="highlight">pure</span> and forever kind of
+                magic."</h2>
+        </div>
+
+        <!-- Interactive Birthday Cake -->
+        <section id="interactive-cake" class="section">
+            <h2 class="section-title glow-text">Make a Wish! 🎂</h2>
+            <p class="text-center mb-4">Tap the candles to blow them out.</p>
+            <div class="cake-container glass-card" id="birthday-cake-container">
+                <div class="cake">
+                    <div class="tier bottom-tier">
+                        <span class="cake-text">Happy Birthday Haritha Akka ❤️</span>
+                    </div>
+                    <div class="tier top-tier"></div>
+                    <div class="candles" id="candles-container">
+                        <div class="candle">
+                            <div class="flame"></div>
+                        </div>
+                        <div class="candle">
+                            <div class="flame"></div>
+                        </div>
+                        <div class="candle">
+                            <div class="flame"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="timeline-item left slide-up">
-                <div class="timeline-content glass-card" style="padding: 0; overflow: hidden;">
-                    <img src="images/sister-left.jpeg" alt="Memory" class="timeline-img sunlight-glow">
+            <div id="cake-wish-message" class="hidden mt-4 text-center glow-text" style="font-size: 1.5rem;">Happy
+                Birthday!! 🎉</div>
+        </section>
+
+        <!-- Floating Quote 4 -->
+        <div class="floating-quote-section">
+            <h2 class="floating-quote">"Brothers and sisters are as close as hands and feet, bound by <span
+                    class="highlight">unconditional</span> love."</h2>
+        </div>
+
+        <!-- Mini Game: Catch the Memories -->
+        <section id="mini-game" class="section">
+            <h2 class="section-title glow-text">Mini Game: Catch the Memories 📸</h2>
+            <p class="text-center mb-4" id="game-instructions">Catch 5 floating memories to unlock a secret message!</p>
+            <div class="game-area glass-card" id="game-area">
+                <!-- Balloons injected via JS -->
+                <button id="start-game-btn" class="glass-btn">Start Game 🎮</button>
+            </div>
+            <div id="game-reward" class="hidden glass-card mt-4 aurora-bg">
+                <h3>Secret Message Unlocked! 💌</h3>
+                <p>To my wonderful sister: Thank you for being my constant support, my greatest confidante, and my best
+                    friend. I cherish every moment we share. ❤️</p>
+            </div>
+        </section>
+
+        <!-- Memory Movie (Swiper.js) -->
+        <section id="memory-movie" class="section">
+            <h2 class="section-title glow-text">Our Movie 🎞️</h2>
+            <div class="swiper memory-swiper glass-card">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide"><img src="images/new1.jpeg" class="highlight-img" alt="Memory">
+                        <div class="slide-caption">Special Memories 💫</div>
+                    </div>
+                    <div class="swiper-slide"><img src="images/new2.jpeg" class="highlight-img" alt="Memory">
+                        <div class="slide-caption">Unforgettable moments ✨</div>
+                    </div>
+                    <div class="swiper-slide"><img src="images/new3.jpeg" class="highlight-img" alt="Memory">
+                        <div class="slide-caption">Beautiful times 🌟</div>
+                    </div>
+                    <div class="swiper-slide"><img src="images/new4.jpeg" class="highlight-img" alt="Memory">
+                        <div class="slide-caption">Love and laughter ❤️</div>
+                    </div>
+                    <div class="swiper-slide"><img src="images/gallery1.jpeg" class="highlight-img" alt="Memory">
+                        <div class="slide-caption">Always laughing together 😆</div>
+                    </div>
+                    <div class="swiper-slide"><img src="images/gallery2.jpeg" class="highlight-img" alt="Memory">
+                        <div class="slide-caption">Partners in crime 👯‍♀️</div>
+                    </div>
+                    <div class="swiper-slide"><img src="images/gallery3.jpeg" class="highlight-img" alt="Memory">
+                        <div class="slide-caption">Through thick and thin 🤝</div>
+                    </div>
+                    <div class="swiper-slide"><img src="images/gallery4.jpeg" class="highlight-img" alt="Memory">
+                        <div class="slide-caption">Best moments ✨</div>
+                    </div>
+                    <div class="swiper-slide"><img src="images/gallery5.jpeg" class="highlight-img" alt="Memory">
+                        <div class="slide-caption">Love you endlessly ❤️</div>
+                    </div>
+                    <div class="swiper-slide"><img src="images/gallery6.jpeg" class="highlight-img" alt="Memory">
+                        <div class="slide-caption">Pure Joy 💖</div>
+                    </div>
+                    <div class="swiper-slide"><img src="images/gallery7.jpeg" class="highlight-img" alt="Memory">
+                        <div class="slide-caption">Smiles for days 😊</div>
+                    </div>
+                    <div class="swiper-slide"><img src="images/gallery8.jpeg" class="highlight-img" alt="Memory">
+                        <div class="slide-caption">Family First 👨‍👩‍👧‍👦</div>
+                    </div>
+                    <div class="swiper-slide"><img src="images/gallery9.jpeg" class="highlight-img" alt="Memory">
+                        <div class="slide-caption">Golden Days ☀️</div>
+                    </div>
+                    <div class="swiper-slide"><img src="images/gallery10.jpeg" class="highlight-img" alt="Memory">
+                        <div class="slide-caption">Forever ♾️</div>
+                    </div>
+                </div>
+                <div class="swiper-pagination"></div>
+                <div class="swiper-button-prev"></div>
+                <div class="swiper-button-next"></div>
+            </div>
+        </section>
+
+        <!-- Magic Mirror Section -->
+        <section id="magic-mirror" class="section">
+            <h2 class="section-title glow-text">Magic Mirror 🪞</h2>
+            <p class="text-center mb-4">Click the mirror to reveal what it sees in you!</p>
+            <div class="mirror-container" id="mirror-container">
+                <div class="mirror-frame">
+                    <div class="mirror-glass" id="mirror-glass">
+                        <span id="mirror-prompt">Click to reveal ✨</span>
+                        <p id="mirror-text" class="hidden"></p>
+                    </div>
                 </div>
             </div>
-            <div class="timeline-item right slide-up">
-                <div class="timeline-content glass-card" style="padding: 0; overflow: hidden;">
-                    <img src="images/sister-right.jpeg" alt="Memory" class="timeline-img sunlight-glow">
+        </section>
+
+        <!-- Hidden Letters / Family Wishes -->
+        <section id="hidden-letters" class="section">
+            <h2 class="section-title glow-text">Secret Envelopes 💌</h2>
+            <p class="text-center mb-4">Tap to open.</p>
+            <div class="envelopes-grid">
+                <div class="envelope glass-card">
+                    <div class="front">❤️ Thank You</div>
+                    <div class="letter hidden">Thank you for being my anchor in the storm.</div>
+                </div>
+                <div class="envelope glass-card">
+                    <div class="front">❤️ Proud of You</div>
+                    <div class="letter hidden">Seeing you achieve your dreams makes me so proud.</div>
+                </div>
+                <div class="envelope glass-card">
+                    <div class="front">❤️ Future Wishes</div>
+                    <div class="letter hidden">May all your wildest dreams come true this year!</div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Things I Love Section -->
-    <section class="section traits-section">
-        <h2 class="section-title fade-in">Why You're the Best</h2>
-        <div class="traits-grid">
-            <div class="glass-card trait-card fade-in">
-                <div class="trait-icon">❤️</div>
-                <h3>Your Caring Heart</h3>
-                <p>You always know how to make people feel loved and special.</p>
+        <!-- Finale: Typewriter & Fireworks -->
+        <section id="finale" class="section finale-section">
+            <h1 class="finale-title highlight-gold">Happy Birthday, Haritha Akka! 🎆</h1>
+            <div class="typewriter-container glass-card aurora-bg" style="min-height: 150px;">
+                <p id="typewriter-text"></p>
             </div>
-            <div class="glass-card trait-card fade-in" style="transition-delay: 0.2s;">
-                <div class="trait-icon">✨</div>
-                <h3>Your Bright Smile</h3>
-                <p>Your smile is contagious and can light up any room.</p>
+            <button id="fireworks-btn" class="glass-btn mt-4">Celebrate! 🎉</button>
+            <div class="footer-msg mt-4 pb-4">
+                <p>❤️ Made with Love by Your Brother ❤️</p>
             </div>
-            <div class="glass-card trait-card fade-in" style="transition-delay: 0.4s;">
-                <div class="trait-icon">🌟</div>
-                <h3>Your Endless Support</h3>
-                <p>Thank you for always being there for me, no matter what.</p>
-            </div>
-        </div>
-    </section>
+        </section>
+    </main>
 
-    <!-- Interactive Birthday Cake -->
-    <section class="section cake-section">
-        <h2 class="section-title fade-in">Make a Wish! 🎂</h2>
-        <p style="text-align: center; margin-bottom: 2rem; font-size: 1.2rem;">Tap the cake to blow out the candles!</p>
-        <div class="cake-container fade-in" id="birthday-cake">
-            <div class="cake">
-                <div class="tier bottom-tier"></div>
-                <div class="tier top-tier"></div>
-                <div class="candles">
-                    <div class="candle"><div class="flame"></div></div>
-                    <div class="candle"><div class="flame"></div></div>
-                    <div class="candle"><div class="flame"></div></div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Send a Wish Form Section -->
-    <section class="section wishes-form-section">
-        <div class="glass-card fade-in" style="width: 100%;">
-            <h2 class="section-title" style="margin-bottom: 1rem;">Send Her a Wish! 💌</h2>
-            <p style="text-align: center; margin-bottom: 2rem; font-size: 1.2rem;">Write a personalized birthday wish and send it directly to her phone.</p>
-            <form id="wish-form" class="wish-form">
-                <input type="text" id="sender-name" placeholder="Your Name (Optional)" class="form-input">
-                <textarea id="wish-message" rows="4" placeholder="Type your beautiful birthday wish here..." required class="form-input"></textarea>
-                <div class="form-buttons">
-                    <button type="button" id="send-whatsapp" class="action-btn whatsapp-btn">Send via WhatsApp 💬</button>
-                    <button type="button" id="send-sms" class="action-btn sms-btn">Send via SMS 📱</button>
-                </div>
-            </form>
-        </div>
-    </section>
-
-    <!-- Quotes Section -->
-    <section class="section quotes-section">
-        <div class="glass-card quote-card fade-in">
-            <p class="quote">"Years may pass, but our memories will stay alive for a lifetime..."</p>
-            <p class="author">- Your Brother</p>
-        </div>
-    </section>
-
-    <!-- Countdown Section -->
-    <section class="section countdown-section">
-        <h2 class="section-title fade-in">The Big Day</h2>
-        <div class="countdown-container fade-in">
-            <div class="time-box">
-                <span id="days">00</span>
-                <span class="label">Days</span>
-            </div>
-            <div class="time-box">
-                <span id="hours">00</span>
-                <span class="label">Hours</span>
-            </div>
-            <div class="time-box">
-                <span id="minutes">00</span>
-                <span class="label">Minutes</span>
-            </div>
-            <div class="time-box">
-                <span id="seconds">00</span>
-                <span class="label">Seconds</span>
-            </div>
-        </div>
-        <p class="countdown-msg" id="countdown-msg">Until your special day! (August 1st)</p>
-    </section>
-
-    <!-- Footer -->
-    <footer>
-        <p>❤️ Made with Love by Your Brother ❤️</p>
-    </footer>
-    </div> <!-- End Main Content Wrapper -->
-
-    <div id="lightbox" class="lightbox">
+    <!-- Lightbox for Bubbles -->
+    <div id="lightbox" class="lightbox hidden">
         <span class="lightbox-close">&times;</span>
         <img id="lightbox-img" src="" alt="Full Screen">
     </div>
 
-    <!-- Canvas Confetti Library -->
+    <!-- Scripts -->
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <!-- tsParticles -->
+    <script src="https://cdn.jsdelivr.net/npm/@tsparticles/engine@3.1.0/tsparticles.engine.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tsparticles/basic@3.1.0/tsparticles.basic.min.js"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/@tsparticles/interaction-particles-links@3.1.0/tsparticles.interaction.particles.links.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tsparticles/move-base@3.1.0/tsparticles.move.base.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tsparticles/shape-circle@3.1.0/tsparticles.shape.circle.min.js"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/@tsparticles/updater-color@3.1.0/tsparticles.updater.color.min.js"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/@tsparticles/updater-opacity@3.1.0/tsparticles.updater.opacity.min.js"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/@tsparticles/updater-out-modes@3.1.0/tsparticles.updater.out-modes.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tsparticles/updater-size@3.1.0/tsparticles.updater.size.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tsparticles@3.1.0/tsparticles.bundle.min.js"></script>
+    <!-- Canvas Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Swiper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <!-- Custom JS -->
     <script src="main.js"></script>
 </body>
 

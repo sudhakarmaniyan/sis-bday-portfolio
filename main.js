@@ -1,321 +1,491 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Loading & Gift Box Flow
-    const loadingScreen = document.getElementById('loading-screen');
-    const loader = document.querySelector('.loader');
-    const giftBoxContainer = document.getElementById('gift-box-container');
+    // --------------------------------------------------------
+    // 1. Initialize tsParticles (Starry Background)
+    // --------------------------------------------------------
+    tsParticles.load("tsparticles", {
+        background: { color: { value: "transparent" } },
+        fpsLimit: 60,
+        interactivity: {
+            events: {
+                onHover: { enable: true, mode: "repulse" },
+                resize: true
+            },
+            modes: {
+                repulse: { distance: 100, duration: 0.4 }
+            }
+        },
+        particles: {
+            color: { value: ["#ffffff", "#f9d423", "#a6c1ee"] },
+            links: { enable: false },
+            move: {
+                direction: "none",
+                enable: true,
+                outModes: { default: "out" },
+                random: true,
+                speed: 0.5,
+                straight: false
+            },
+            number: { density: { enable: true, area: 800 }, value: 150 },
+            opacity: {
+                animation: { enable: true, speed: 1, minimumValue: 0.1 },
+                value: { min: 0.1, max: 0.8 }
+            },
+            shape: { type: "circle" },
+            size: { value: { min: 1, max: 3 } }
+        },
+        detectRetina: true
+    });
+
+    // --------------------------------------------------------
+    // 2. Cinematic Intro Sequence
+    // --------------------------------------------------------
+    const introLines = [
+        document.getElementById('intro-line-1'),
+        document.getElementById('intro-line-2'),
+        document.getElementById('intro-line-3'),
+        document.getElementById('intro-line-4')
+    ];
+    const startBtn = document.getElementById('start-journey-btn');
+    const cinematicIntro = document.getElementById('cinematic-intro');
+    const lockedGiftScreen = document.getElementById('locked-gift-screen');
+
+    let delay = 1;
+    introLines.forEach((line, index) => {
+        gsap.to(line, {
+            opacity: 1,
+            duration: 2,
+            delay: delay,
+            onComplete: () => {
+                if (index < introLines.length - 1) {
+                    gsap.to(line, { opacity: 0, duration: 1, delay: 1 });
+                } else {
+                    // Last line stays, show button
+                    gsap.to(startBtn, { display: 'block', opacity: 1, duration: 1, delay: 1 });
+                    startBtn.classList.remove('hidden');
+                }
+            }
+        });
+        delay += 3; // Time between lines
+    });
+
+    startBtn.addEventListener('click', () => {
+        gsap.to(cinematicIntro, {
+            opacity: 0, duration: 1, onComplete: () => {
+                cinematicIntro.classList.add('hidden');
+                lockedGiftScreen.classList.remove('hidden');
+                gsap.fromTo(lockedGiftScreen, { opacity: 0 }, { opacity: 1, duration: 1 });
+            }
+        });
+    });
+
+    // --------------------------------------------------------
+    // 3. Unlock Gift Box
+    // --------------------------------------------------------
+    const unlockBtn = document.getElementById('unlock-gift-btn');
+    const mainGiftBox = document.getElementById('main-gift-box');
     const mainContent = document.getElementById('main-content');
+    const floatingControls = document.getElementById('floating-controls');
     const bgMusic = document.getElementById('bg-music');
-    const musicBtn = document.getElementById('music-btn');
-    let isPlaying = false;
+    let isMusicPlaying = false;
 
-    // Simulate loading time for suspense
-    setTimeout(() => {
-        loader.style.display = 'none';
-        giftBoxContainer.classList.remove('hidden');
-    }, 2000);
-
-    giftBoxContainer.addEventListener('click', () => {
-        // Hide loading screen
-        loadingScreen.classList.add('hidden-complete');
-        // Show main content
-        mainContent.classList.add('visible');
-        
-        // Play music (this bypasses autoplay block because it's tied to a user click!)
-        bgMusic.play().then(() => {
-            isPlaying = true;
-            musicBtn.textContent = '⏸ Pause Music';
-        }).catch(e => console.log("Audio play prevented"));
-
-        // Initial Confetti Burst
-        const duration = 3 * 1000;
+    unlockBtn.addEventListener('click', () => {
+        // Shake animation manually trigger if needed, but it's handled by hover usually.
+        // Let's add a massive confetti blast!
+        const duration = 3000;
         const end = Date.now() + duration;
+
         (function frame() {
-            confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#ff7eb3', '#ff758c', '#fbc2eb', '#a6c1ee'] });
-            confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#ff7eb3', '#ff758c', '#fbc2eb', '#a6c1ee'] });
+            confetti({
+                particleCount: 5, angle: 60, spread: 55, origin: { x: 0 },
+                colors: ['#ff7eb3', '#ff758c', '#fbc2eb', '#f9d423']
+            });
+            confetti({
+                particleCount: 5, angle: 120, spread: 55, origin: { x: 1 },
+                colors: ['#ff7eb3', '#ff758c', '#fbc2eb', '#f9d423']
+            });
             if (Date.now() < end) requestAnimationFrame(frame);
         }());
+
+        // Play music
+        bgMusic.play().then(() => {
+            isMusicPlaying = true;
+            document.getElementById('play-pause-btn').textContent = '⏸';
+        }).catch(e => console.log("Audio play blocked by browser."));
+
+        // Transition to Main Content
+        gsap.to(lockedGiftScreen, {
+            scale: 1.5, opacity: 0, duration: 1.5, ease: "power2.in",
+            onComplete: () => {
+                lockedGiftScreen.classList.add('hidden');
+                mainContent.classList.remove('hidden');
+                floatingControls.classList.remove('hidden');
+                
+                gsap.fromTo(mainContent, { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 1 });
+                
+                // Initialize ScrollTrigger animations AFTER main content is visible
+                initScrollAnimations();
+            }
+        });
     });
 
-    // 2. Music Player Control (Update existing listener)
-    musicBtn.addEventListener('click', () => {
-        if (isPlaying) {
+    // --------------------------------------------------------
+    // 4. Music Player & Voice Greeting
+    // --------------------------------------------------------
+    const playPauseBtn = document.getElementById('play-pause-btn');
+    const voiceBtn = document.getElementById('voice-greeting-btn');
+    const voiceAudio = document.getElementById('voice-greeting');
+
+    playPauseBtn.addEventListener('click', () => {
+        if (isMusicPlaying) {
             bgMusic.pause();
-            musicBtn.textContent = '🎵 Play Music';
+            playPauseBtn.textContent = '▶';
         } else {
             bgMusic.play();
-            musicBtn.textContent = '⏸ Pause Music';
+            playPauseBtn.textContent = '⏸';
         }
-        isPlaying = !isPlaying;
+        isMusicPlaying = !isMusicPlaying;
     });
 
-    // 2. Initial Confetti Burst on Load
-    const duration = 3 * 1000;
-    const end = Date.now() + duration;
-
-    (function frame() {
-        confetti({
-            particleCount: 5,
-            angle: 60,
-            spread: 55,
-            origin: { x: 0 },
-            colors: ['#ff7eb3', '#ff758c', '#fbc2eb', '#a6c1ee']
-        });
-        confetti({
-            particleCount: 5,
-            angle: 120,
-            spread: 55,
-            origin: { x: 1 },
-            colors: ['#ff7eb3', '#ff758c', '#fbc2eb', '#a6c1ee']
-        });
-
-        if (Date.now() < end) {
-            requestAnimationFrame(frame);
-        }
-    }());
-
-    // 3. Scroll Animations using Intersection Observer
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-                observer.unobserve(entry.target);
-            }
-        });
-    }, observerOptions);
-
-    document.querySelectorAll('.fade-in, .slide-up').forEach(element => {
-        observer.observe(element);
+    voiceBtn.addEventListener('click', () => {
+        // Pause bg music temporarily
+        if(isMusicPlaying) bgMusic.pause();
+        
+        voiceAudio.play();
+        alert("Playing AI Voice Greeting... (Mocked using BGM)");
+        
+        voiceAudio.onended = () => {
+            if(isMusicPlaying) bgMusic.play();
+        };
     });
 
-    // Special Popup Confetti
-    const popupObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-                
-                // Trigger massive celebration confetti
-                const duration = 2500;
-                const end = Date.now() + duration;
+    // --------------------------------------------------------
+    // 5. GSAP Scroll Animations
+    // --------------------------------------------------------
+    function initScrollAnimations() {
+        gsap.registerPlugin(ScrollTrigger);
 
-                (function frame() {
-                    confetti({
-                        particleCount: 10,
-                        angle: 60,
-                        spread: 70,
-                        origin: { x: 0 },
-                        colors: ['#ff0844', '#ffb199', '#ff7eb3', '#fbc2eb']
-                    });
-                    confetti({
-                        particleCount: 10,
-                        angle: 120,
-                        spread: 70,
-                        origin: { x: 1 },
-                        colors: ['#ff0844', '#ffb199', '#ff7eb3', '#fbc2eb']
-                    });
-
-                    if (Date.now() < end) {
-                        requestAnimationFrame(frame);
+        // Timeline nodes
+        const nodes = document.querySelectorAll('.timeline-node');
+        nodes.forEach((node, i) => {
+            gsap.fromTo(node, 
+                { opacity: 0, x: node.classList.contains('left') ? -50 : 50 },
+                {
+                    opacity: 1, x: 0, duration: 1,
+                    scrollTrigger: {
+                        trigger: node,
+                        start: "top 80%",
+                        toggleActions: "play none none none"
                     }
-                }());
-                
-                popupObserver.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.4 });
-
-    const popupSection = document.querySelector('.popup-container');
-    if (popupSection) {
-        popupObserver.observe(popupSection);
-    }
-
-    // 4. Countdown Timer for August 01
-    // Determine the year. If current date is past Aug 1, set for next year.
-    const now = new Date();
-    let targetYear = now.getFullYear();
-    const targetDateStr = `${targetYear}-08-01T00:00:00`;
-    let birthdayDate = new Date(targetDateStr);
-
-    if (now > birthdayDate) {
-        targetYear++;
-        birthdayDate = new Date(`${targetYear}-08-01T00:00:00`);
-    }
-
-    const daysEl = document.getElementById('days');
-    const hoursEl = document.getElementById('hours');
-    const minutesEl = document.getElementById('minutes');
-    const secondsEl = document.getElementById('seconds');
-    const countdownMsgEl = document.getElementById('countdown-msg');
-
-    function updateCountdown() {
-        const currentTime = new Date();
-        const diff = birthdayDate - currentTime;
-
-        if (diff <= 0) {
-            // It's her birthday!
-            daysEl.textContent = '00';
-            hoursEl.textContent = '00';
-            minutesEl.textContent = '00';
-            secondsEl.textContent = '00';
-            countdownMsgEl.textContent = "It's your birthday! 🎉 Happy Birthday Haritha! 🎂";
-            
-            // Continuous Confetti
-            setInterval(() => {
-                confetti({
-                    particleCount: 100,
-                    spread: 70,
-                    origin: { y: 0.6 }
-                });
-            }, 3000);
-            return;
-        }
-
-        const d = Math.floor(diff / 1000 / 60 / 60 / 24);
-        const h = Math.floor((diff / 1000 / 60 / 60) % 24);
-        const m = Math.floor((diff / 1000 / 60) % 60);
-        const s = Math.floor((diff / 1000) % 60);
-
-        daysEl.textContent = d < 10 ? '0' + d : d;
-        hoursEl.textContent = h < 10 ? '0' + h : h;
-        minutesEl.textContent = m < 10 ? '0' + m : m;
-        secondsEl.textContent = s < 10 ? '0' + s : s;
-    }
-
-    // Initial call
-    updateCountdown();
-    // Update every second
-    setInterval(updateCountdown, 1000);
-
-    // 5. Send Wish Logic
-    const sistersPhoneNumber = '918778133094'; 
-
-    const senderNameInput = document.getElementById('sender-name');
-    const wishMessageInput = document.getElementById('wish-message');
-    const whatsappBtn = document.getElementById('send-whatsapp');
-    const smsBtn = document.getElementById('send-sms');
-
-    function getFormattedMessage() {
-        const name = senderNameInput.value.trim();
-        const msg = wishMessageInput.value.trim();
-        const websiteLink = window.location.href; // This will grab the actual website link once you host it online!
-
-        if (!msg) {
-            alert("Please type a beautiful message for your sister first! ❤️");
-            return null;
-        }
-        return `Happy Birthday Haritha Akka! 🎉\n\n${msg}\n\n- ${name || 'Someone special'} 💖\n\nCheck out my surprise for you here: ${websiteLink}`;
-    }
-
-    if(whatsappBtn) {
-        whatsappBtn.addEventListener('click', () => {
-            const text = getFormattedMessage();
-            if (text) {
-                const url = `https://wa.me/${sistersPhoneNumber}?text=${encodeURIComponent(text)}`;
-                window.open(url, '_blank');
-            }
-        });
-    }
-
-    if(smsBtn) {
-        smsBtn.addEventListener('click', () => {
-            const text = getFormattedMessage();
-            if (text) {
-                // Determine if iOS or Android for SMS formatting
-                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-                const separator = isIOS ? '&' : '?';
-                const url = `sms:${sistersPhoneNumber}${separator}body=${encodeURIComponent(text)}`;
-                window.open(url, '_self');
-            }
-        });
-    }
-
-    // 6. Typewriter effect
-    const typewriterContainer = document.getElementById('typewriter-container');
-    if (typewriterContainer) {
-        const paragraphs = Array.from(typewriterContainer.querySelectorAll('.hidden-text')).map(p => p.textContent);
-        typewriterContainer.innerHTML = ''; // Clear for typing
-        
-        let isTyping = false;
-        
-        const typeWriterObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting && !isTyping) {
-                    isTyping = true;
-                    typeWriterObserver.unobserve(entry.target);
-                    
-                    let pIndex = 0;
-                    let charIndex = 0;
-                    let currentP = document.createElement('p');
-                    typewriterContainer.appendChild(currentP);
-
-                    function type() {
-                        if (pIndex < paragraphs.length) {
-                            if (charIndex < paragraphs[pIndex].length) {
-                                currentP.textContent += paragraphs[pIndex].charAt(charIndex);
-                                charIndex++;
-                                setTimeout(type, 30); // Typing speed
-                            } else {
-                                pIndex++;
-                                charIndex = 0;
-                                if (pIndex < paragraphs.length) {
-                                    currentP = document.createElement('p');
-                                    typewriterContainer.appendChild(currentP);
-                                    setTimeout(type, 500); // Pause between paragraphs
-                                }
-                            }
-                        }
-                    }
-                    type();
                 }
-            });
-        }, { threshold: 0.5 });
-        
-        typeWriterObserver.observe(document.querySelector('.message-section'));
+            );
+        });
+
+        // General section titles
+        gsap.utils.toArray('.section-title').forEach(title => {
+            gsap.fromTo(title,
+                { opacity: 0, y: -30 },
+                { opacity: 1, y: 0, duration: 1, scrollTrigger: { trigger: title, start: "top 85%" } }
+            );
+        });
+
+        // Floating Quotes
+        gsap.utils.toArray('.floating-quote').forEach(quote => {
+            gsap.fromTo(quote,
+                { opacity: 0, scale: 0.8, y: 50 },
+                { 
+                    opacity: 1, scale: 1, y: 0, 
+                    duration: 1.5, 
+                    ease: "back.out(1.7)", 
+                    scrollTrigger: { 
+                        trigger: quote, 
+                        start: "top 80%",
+                        toggleActions: "play none none none"
+                    } 
+                }
+            );
+        });
     }
 
-    // 7. Gallery Lightbox
+    // --------------------------------------------------------
+    // 6. Memory Bubbles
+    // --------------------------------------------------------
+    const bubblesContainer = document.getElementById('bubbles-container');
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightbox-img');
-    const closeLightbox = document.querySelector('.lightbox-close');
+    const lightboxClose = document.querySelector('.lightbox-close');
+    
+    // Using existing images
+    const bubbleImages = [
+        'new1.jpeg', 'new2.jpeg', 'new3.jpeg', 'new4.jpeg',
+        'gallery1.jpeg', 'gallery2.jpeg', 'gallery3.jpeg', 'gallery4.jpeg', 'gallery5.jpeg',
+        'gallery6.jpeg', 'gallery7.jpeg', 'gallery8.jpeg', 'gallery9.jpeg', 'gallery10.jpeg',
+        'timeline-2.jpeg', 'surprise1.jpeg', 'surprise2.jpeg'
+    ];
+    
+    // Create exactly one bubble per image in a random order
+    const shuffledImages = [...bubbleImages].sort(() => 0.5 - Math.random());
+    
+    for (let i = 0; i < shuffledImages.length; i++) {
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        const size = Math.random() * 60 + 60; // 60px to 120px
+        bubble.style.width = `${size}px`;
+        bubble.style.height = `${size}px`;
+        bubble.style.left = `${Math.random() * 90}%`;
+        bubble.style.top = `${Math.random() * 90}%`;
+        
+        // Random image without repetition
+        const img = shuffledImages[i];
+        bubble.style.backgroundImage = `url('images/${img}')`;
 
-    if (lightbox) {
-        document.querySelectorAll('.gallery-item img, .popup-image img').forEach(img => {
-            img.style.cursor = 'pointer';
-            img.addEventListener('click', () => {
-                lightboxImg.src = img.src;
-                lightbox.classList.add('active');
-            });
+        // Floating animation
+        gsap.to(bubble, {
+            y: `-${Math.random() * 100 + 50}`,
+            x: `${(Math.random() - 0.5) * 50}`,
+            duration: Math.random() * 5 + 5,
+            repeat: -1,
+            yoyo: true,
+            ease: "sine.inOut"
         });
 
-        closeLightbox.addEventListener('click', () => lightbox.classList.remove('active'));
-        lightbox.addEventListener('click', (e) => {
-            if (e.target !== lightboxImg) lightbox.classList.remove('active');
+        bubble.addEventListener('click', () => {
+            // Pop effect
+            confetti({ particleCount: 15, spread: 40, origin: { x: bubble.getBoundingClientRect().left / window.innerWidth, y: bubble.getBoundingClientRect().top / window.innerHeight } });
+            
+            // Open lightbox
+            lightboxImg.src = `images/${img}`;
+            lightbox.classList.remove('hidden');
         });
+
+        bubblesContainer.appendChild(bubble);
     }
 
-    // 8. Blow out candles interactive cake
-    const cakeContainer = document.getElementById('birthday-cake');
-    const flames = document.querySelectorAll('.flame');
-    let blownOut = false;
+    lightboxClose.addEventListener('click', () => {
+        lightbox.classList.add('hidden');
+    });
 
-    if (cakeContainer) {
-        cakeContainer.addEventListener('click', () => {
-            if (!blownOut) {
-                flames.forEach(flame => flame.classList.add('blown-out'));
-                blownOut = true;
+    // --------------------------------------------------------
+    // 7. Interactive Birthday Cake
+    // --------------------------------------------------------
+    const flames = document.querySelectorAll('.flame');
+    let blownOut = 0;
+    
+    flames.forEach(flame => {
+        flame.parentElement.addEventListener('click', () => {
+            if (flame.style.opacity !== '0') {
+                flame.style.opacity = '0';
+                blownOut++;
                 
-                // Massive celebration confetti
-                const duration = 5000;
-                const end = Date.now() + duration;
-                (function frame() {
-                    confetti({ particleCount: 15, spread: 100, origin: { y: 0.6 }});
-                    if (Date.now() < end) requestAnimationFrame(frame);
-                }());
+                // Smoke effect
+                confetti({
+                    particleCount: 10, startVelocity: 15, spread: 30, ticks: 60, origin: { x: 0.5, y: 0.6 },
+                    colors: ['#cccccc', '#dddddd']
+                });
+
+                if (blownOut === flames.length) {
+                    setTimeout(() => {
+                        document.getElementById('cake-wish-message').classList.remove('hidden');
+                        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+                    }, 500);
+                }
+            }
+        });
+    });
+
+    // --------------------------------------------------------
+    // 8. Mini Game (Catch Memories)
+    // --------------------------------------------------------
+    const gameArea = document.getElementById('game-area');
+    const startGameBtn = document.getElementById('start-game-btn');
+    const gameReward = document.getElementById('game-reward');
+    let memoriesCaught = 0;
+    const totalMemories = 5;
+
+    let gameInterval;
+    startGameBtn.addEventListener('click', () => {
+        startGameBtn.classList.add('hidden');
+        spawnMemory();
+        gameInterval = setInterval(() => {
+            if (memoriesCaught < totalMemories) {
+                spawnMemory();
+            } else {
+                clearInterval(gameInterval);
+            }
+        }, 800);
+    });
+
+    function spawnMemory() {
+        const memory = document.createElement('div');
+        memory.className = 'game-memory';
+        const img = bubbleImages[Math.floor(Math.random() * bubbleImages.length)];
+        memory.style.backgroundImage = `url('images/${img}')`;
+        memory.style.left = `${Math.random() * 80 + 10}%`;
+        memory.style.bottom = '-100px';
+
+        gameArea.appendChild(memory);
+
+        // Animate upwards
+        gsap.to(memory, {
+            y: -600,
+            duration: Math.random() * 2 + 3,
+            ease: "none",
+            onComplete: () => {
+                if (memory.parentElement) memory.remove();
+            }
+        });
+
+        memory.addEventListener('mousedown', () => {
+            if (!memory.classList.contains('popped')) {
+                memory.classList.add('popped');
+                
+                // Special Confetti theme
+                const x = memory.getBoundingClientRect().left / window.innerWidth;
+                const y = memory.getBoundingClientRect().top / window.innerHeight;
+                
+                confetti({
+                    particleCount: 25,
+                    spread: 60,
+                    origin: { x, y },
+                    colors: ['#ff7eb3', '#ff758c', '#f9d423', '#ffffff'],
+                    scalar: 1.2
+                });
+
+                memoriesCaught++;
+                
+                if (memoriesCaught === totalMemories) {
+                    clearInterval(gameInterval);
+                    gameArea.innerHTML = ''; // Clear game
+                    gameReward.classList.remove('hidden');
+                    gsap.from(gameReward, { scale: 0, rotation: 360, duration: 1 });
+                    confetti({ particleCount: 150, spread: 100, origin: { y: 0.6 } });
+                }
             }
         });
     }
+
+    // --------------------------------------------------------
+    // 9. Swiper.js Initialization
+    // --------------------------------------------------------
+    const swiper = new Swiper('.memory-swiper', {
+        effect: 'coverflow',
+        grabCursor: true,
+        centeredSlides: true,
+        slidesPerView: 'auto',
+        coverflowEffect: {
+            rotate: 50, stretch: 0, depth: 100, modifier: 1, slideShadows: true,
+        },
+        pagination: { el: '.swiper-pagination', clickable: true },
+        navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+        autoplay: { delay: 3000, disableOnInteraction: false }
+    });
+
+    // --------------------------------------------------------
+    // 10. Magic Mirror
+    // --------------------------------------------------------
+    const mirrorFrame = document.querySelector('.mirror-frame');
+    const mirrorPrompt = document.getElementById('mirror-prompt');
+    const mirrorText = document.getElementById('mirror-text');
+    
+    const mirrorMessages = [
+        "I see the most beautiful sister inside and out. ✨",
+        "A reflection of pure kindness and joy. 💖",
+        "Your smile lights up every room you enter. 🌟",
+        "I see a lifetime of wonderful memories. 📸",
+        "You are loved more than you will ever know. ❤️",
+        "A true queen! 👑",
+        "The best sister in the universe. 🌌"
+    ];
+
+    if (mirrorFrame) {
+        mirrorFrame.addEventListener('click', () => {
+            mirrorPrompt.classList.add('hidden');
+            
+            // Random message
+            const randomMsg = mirrorMessages[Math.floor(Math.random() * mirrorMessages.length)];
+            
+            // Reset animation
+            mirrorText.classList.remove('hidden');
+            mirrorText.style.animation = 'none';
+            mirrorText.offsetHeight; // trigger reflow
+            mirrorText.style.animation = null;
+            
+            mirrorText.innerHTML = randomMsg;
+            
+            // Magical sparkles
+            const rect = mirrorFrame.getBoundingClientRect();
+            const x = (rect.left + rect.width / 2) / window.innerWidth;
+            const y = (rect.top + rect.height / 2) / window.innerHeight;
+            
+            confetti({
+                particleCount: 50,
+                spread: 80,
+                origin: { x, y },
+                colors: ['#ffffff', '#f9d423', '#a6c1ee'],
+                shapes: ['star']
+            });
+        });
+    }
+
+    // --------------------------------------------------------
+    // 11. Hidden Letters
+    // --------------------------------------------------------
+    document.querySelectorAll('.envelope').forEach(env => {
+        env.addEventListener('click', () => {
+            const front = env.querySelector('.front');
+            const letter = env.querySelector('.letter');
+            front.classList.toggle('hidden');
+            letter.classList.toggle('hidden');
+        });
+    });
+
+    // --------------------------------------------------------
+    // 11. Finale Typewriter & Fireworks
+    // --------------------------------------------------------
+    const typewriterText = "Dear Haritha Akka,\nThank you for being the most amazing sister. May your birthday be filled with endless joy, laughter, and everything your heart desires. I promise to always be by your side. Have the best birthday ever! ❤️";
+    const typeWriterEl = document.getElementById('typewriter-text');
+    let typed = false;
+
+    // Trigger typewriter when finale section is reached
+    ScrollTrigger.create({
+        trigger: ".finale-section",
+        start: "top 70%",
+        onEnter: () => {
+            if (!typed) {
+                typed = true;
+                let i = 0;
+                function type() {
+                    if (i < typewriterText.length) {
+                        typeWriterEl.textContent += typewriterText.charAt(i);
+                        i++;
+                        setTimeout(type, 50); // Speed
+                    }
+                }
+                type();
+            }
+        }
+    });
+
+    document.getElementById('fireworks-btn').addEventListener('click', () => {
+        const duration = 15 * 1000;
+        const animationEnd = Date.now() + duration;
+        const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+
+        function randomInRange(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        const interval = setInterval(function() {
+            const timeLeft = animationEnd - Date.now();
+
+            if (timeLeft <= 0) {
+                return clearInterval(interval);
+            }
+
+            const particleCount = 50 * (timeLeft / duration);
+            // since particles fall down, start a bit higher than random
+            confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+            confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+        }, 250);
+    });
+
 });
