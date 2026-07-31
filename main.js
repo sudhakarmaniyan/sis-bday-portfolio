@@ -107,6 +107,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }());
 
         // Play music
+        bgMusic.loop = true;
+        bgMusic.addEventListener('ended', function() {
+            this.currentTime = 0;
+            this.play();
+        });
+        
         bgMusic.play().then(() => {
             isMusicPlaying = true;
             document.getElementById('play-pause-btn').textContent = '⏸';
@@ -380,49 +386,105 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --------------------------------------------------------
-    // 10. Magic Mirror
+    // 10. Magic Mirror Redesign
     // --------------------------------------------------------
-    const mirrorFrame = document.querySelector('.mirror-frame');
+    const mirrorGlass = document.getElementById('mirror-glass');
     const mirrorPrompt = document.getElementById('mirror-prompt');
+    const mirrorQuoteBox = document.getElementById('mirror-quote-box');
     const mirrorText = document.getElementById('mirror-text');
+    const mirrorPrev = document.getElementById('mirror-prev');
+    const mirrorNext = document.getElementById('mirror-next');
+    const mirrorPagination = document.getElementById('mirror-pagination');
     
-    const mirrorMessages = [
-        "I see the most beautiful sister inside and out. ✨",
-        "A reflection of pure kindness and joy. 💖",
-        "Your smile lights up every room you enter. 🌟",
-        "I see a lifetime of wonderful memories. 📸",
-        "You are loved more than you will ever know. ❤️",
-        "A true queen! 👑",
-        "The best sister in the universe. 🌌"
+    const mirrorData = [
+        { img: 'mm1.jpeg', text: "You are not just amazing, you are rare, precious and irreplaceable." },
+        { img: 'mm2.jpeg', text: "A sister is a gift to the heart, a friend to the spirit, a golden thread to the meaning of life. God bless you always." },
+        { img: 'mm3.jpeg', text: "Born of the same blood, bound by a love that outlasts time. You are my truest paasamalar." },
+        { img: 'mm4.jpeg', text: "Through every phase of life, my greatest pride is calling you my sister. May the heavens shower you with infinite blessings." },
+        { img: 'mm5.jpeg', text: "A sibling is a piece of childhood that can never be lost. You are my forever confidante and guide." },
+        { img: 'mm6.jpeg', text: "More than family, you are my strength. The unspoken bond of brotherhood and sisterhood we share is my greatest treasure." },
+        { img: 'mm7.jpeg', text: "May God's divine grace protect you and fill your life with the same boundless joy you bring to ours. Happy Birthday!" }
     ];
 
-    if (mirrorFrame) {
-        mirrorFrame.addEventListener('click', () => {
-            mirrorPrompt.classList.add('hidden');
-            
-            // Random message
-            const randomMsg = mirrorMessages[Math.floor(Math.random() * mirrorMessages.length)];
-            
-            // Reset animation
-            mirrorText.classList.remove('hidden');
-            mirrorText.style.animation = 'none';
-            mirrorText.offsetHeight; // trigger reflow
-            mirrorText.style.animation = null;
-            
-            mirrorText.innerHTML = randomMsg;
-            
-            // Magical sparkles
-            const rect = mirrorFrame.getBoundingClientRect();
-            const x = (rect.left + rect.width / 2) / window.innerWidth;
-            const y = (rect.top + rect.height / 2) / window.innerHeight;
-            
-            confetti({
-                particleCount: 50,
-                spread: 80,
-                origin: { x, y },
-                colors: ['#ffffff', '#f9d423', '#a6c1ee'],
-                shapes: ['star']
+    let currentMirrorIndex = 0;
+    let mirrorRevealed = false;
+
+    if (mirrorPagination) {
+        // Create pagination dots
+        mirrorData.forEach((_, index) => {
+            const dot = document.createElement('div');
+            dot.className = 'mirror-dot';
+            if(index === 0) dot.classList.add('active');
+            dot.addEventListener('click', () => {
+                if(mirrorRevealed) {
+                    currentMirrorIndex = index;
+                    updateMirror();
+                }
             });
+            mirrorPagination.appendChild(dot);
+        });
+    }
+
+    function updateMirror() {
+        // Update Image
+        mirrorGlass.style.backgroundImage = `url('images/${mirrorData[currentMirrorIndex].img}')`;
+        
+        // Update Text
+        mirrorText.innerHTML = mirrorData[currentMirrorIndex].text;
+        
+        // Re-trigger animation
+        mirrorQuoteBox.style.animation = 'none';
+        mirrorQuoteBox.offsetHeight; // reflow
+        mirrorQuoteBox.style.animation = null;
+        
+        // Update Dots
+        document.querySelectorAll('.mirror-dot').forEach((dot, i) => {
+            dot.classList.toggle('active', i === currentMirrorIndex);
+        });
+        
+        // Magical sparkles
+        const rect = mirrorGlass.getBoundingClientRect();
+        const x = (rect.left + rect.width / 2) / window.innerWidth;
+        const y = (rect.top + rect.height / 2) / window.innerHeight;
+        
+        confetti({
+            particleCount: 30,
+            spread: 60,
+            origin: { x, y },
+            colors: ['#ffffff', '#f9d423', '#a6c1ee'],
+            shapes: ['star'],
+            zIndex: 100
+        });
+    }
+
+    if (mirrorGlass) {
+        mirrorGlass.addEventListener('click', () => {
+            if(!mirrorRevealed) {
+                mirrorRevealed = true;
+                mirrorPrompt.classList.add('hidden');
+                mirrorQuoteBox.classList.remove('hidden');
+                updateMirror();
+            } else {
+                currentMirrorIndex = (currentMirrorIndex + 1) % mirrorData.length;
+                updateMirror();
+            }
+        });
+
+        mirrorNext.addEventListener('click', () => {
+            if(!mirrorRevealed) {
+                mirrorRevealed = true;
+                mirrorPrompt.classList.add('hidden');
+                mirrorQuoteBox.classList.remove('hidden');
+            } else {
+                currentMirrorIndex = (currentMirrorIndex + 1) % mirrorData.length;
+            }
+            updateMirror();
+        });
+
+        mirrorPrev.addEventListener('click', () => {
+            if(!mirrorRevealed) return;
+            currentMirrorIndex = (currentMirrorIndex - 1 + mirrorData.length) % mirrorData.length;
+            updateMirror();
         });
     }
 

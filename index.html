@@ -248,16 +248,37 @@
 
         <!-- Magic Mirror Section -->
         <section id="magic-mirror" class="section">
-            <h2 class="section-title glow-text">Magic Mirror 🪞</h2>
-            <p class="text-center mb-4">Click the mirror to reveal what it sees in you!</p>
-            <div class="mirror-container" id="mirror-container">
-                <div class="mirror-frame">
-                    <div class="mirror-glass" id="mirror-glass">
-                        <span id="mirror-prompt">Click to reveal ✨</span>
-                        <p id="mirror-text" class="hidden"></p>
+            <div class="mirror-header">
+                <h2 class="section-title glow-text" style="font-family: var(--font-heading);">Magic Mirror 🪞</h2>
+                <p class="text-center mb-4">Click the mirror to reveal what it sees in you!</p>
+            </div>
+            
+            <div class="magic-mirror-wrapper">
+                <button class="mirror-nav-btn prev-btn" id="mirror-prev">‹</button>
+                
+                <div class="mirror-container" id="mirror-container">
+                    <div class="mirror-crown">👑</div>
+                    <div class="mirror-frame">
+                        <div class="mirror-glass" id="mirror-glass">
+                            <div class="mirror-prompt" id="mirror-prompt">
+                                <span>Click to reveal ✨</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
+                
+                <button class="mirror-nav-btn next-btn" id="mirror-next">›</button>
             </div>
+            
+            <div class="mirror-quote-display hidden" id="mirror-quote-box">
+                <span class="quote-icon">“</span>
+                <p id="mirror-text"></p>
+                <div class="heart-icon">❤️</div>
+            </div>
+            
+            <div class="mirror-pagination" id="mirror-pagination"></div>
+            
+            <p class="mirror-footer-text mt-4 text-center" style="opacity: 0.8;">✨ Keep clicking to discover more magic! ✨</p>
         </section>
 
         <!-- Hidden Letters / Family Wishes -->
